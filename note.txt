@@ -1,0 +1,12 @@
+--How to initialize a module in Go--
+
+go mod init module_name
+
+--How to get package for Go--
+
+go get package_name/package_link
+
+--How to run Go application--
+
+go run main.go
+
