@@ -1,0 +1,260 @@
+h1{
+    font-style: normal;
+    font-weight: 800;
+    font-size: 45px;
+    line-height: 120%;
+    margin-top: 50px;
+    margin-bottom: 30px;
+    text-align: center
+}
+
+.project-detail .project-detail-container h1 {
+    margin-bottom: 50px;
+    font-weight: bold;
+}
+
+.project-tech .python-tech {
+    margin-left: 28px;
+}
+
+p {
+    line-height: 35px;
+    text-align: justify;
+}
+/* .project-detail .project-detail-container .content-left {
+    flex: 70%;
+    margin-left: 0px;
+}
+
+.project-detail .project-detail-container .content-right {
+    flex: 30%;
+    margin: 150px 250px 0px 0px;
+} */
+
+/* .project-detail-container .content-left img {
+    width: 600px;
+}
+
+.time-project h2 {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+.time-project .date {
+    display: flex;
+}
+
+.time-project .date i {
+    font-size: 28px;
+}
+
+.time-project .date h3 {
+    margin-top: 3px;
+    margin-left: 15px;
+}
+
+.time-project .duration {
+    display: flex;
+}
+
+.time-project .duration i {
+    font-size: 28px;
+}
+
+.time-project .duration h3 {
+    margin-top: 2px;
+    margin-left: 12px;
+}
+
+.project-tech h2 {
+    font-size: 30px;
+    margin-bottom: 5px;
+}
+
+.project-tech .tech-top {
+    display: flex;
+}
+
+.project-tech .tech-bottom {
+    display: flex;
+}
+
+.project-tech .tech-top .java-tech {
+    display: flex;
+}
+
+.project-tech .tech-top .java-tech h3 {
+    margin-top: 10px;
+    margin-left: 12px;
+}
+
+.project-tech .tech-top .python-tech {
+    display: flex;
+}
+
+.project-tech .tech-top .python-tech h3 {
+    margin-top: 5px;
+    margin-left: 10px;
+}
+
+.project-tech .tech-bottom .js-tech {
+    display: flex;
+}
+
+.project-tech .tech-bottom .js-tech h3 {
+    margin-top: 5px;
+    margin-left: 10px;
+}
+
+.project-tech .tech-bottom .php-tech {
+    display: flex;
+}
+
+.project-tech .tech-bottom .php-tech h3 {
+    margin-top: 5px;
+    margin-left: 10px;
+}
+
+.project-tech .tech-top .python-tech {
+    margin-left: 60px;
+    margin-top: 4px;
+}
+
+.project-tech .tech-bottom .php-tech {
+    margin-left: 25px;
+}
+
+.project-tech .tech-top i {
+    font-size: 35px;
+}
+
+.project-tech .tech-bottom i {
+    font-size: 35px;
+}
+
+.project-tech .tech-top, .tech-bottom h3 {
+    font-size: 15px;
+} */
+
+
+/* @media only screen and (max-width: 1200px) {
+    .project-detail-container .content-left img {
+        width: 450px;
+    }
+
+    .project-detail .project-detail-container .content-right {
+        margin-top: 20px;
+        margin-left: 40px;
+    }
+
+    p {
+        margin: 20px 40px;
+       
+    }
+
+    .project-tech {
+        margin-top: -20px;
+    }
+
+}
+
+@media only screen and (max-width: 550px) {
+    h1 {
+        font-size: 30px;
+    }
+    
+    .project-detail-container .content-left img {
+        width: 200px;
+        height: 100%;
+        margin-left: -5px;
+    }
+
+    .time-project h2 {
+        font-size: 20px;
+        margin-bottom: 5px;
+    }
+
+    .project-detail .project-detail-container .content-right {
+        margin-left: 20px;
+        margin-top: -13px;
+        flex-direction: column;
+    }
+
+    .time-project .date h3 {
+        font-size: 12px;
+        margin-left: 10px;
+        margin-top: 0px;
+    }
+
+    .time-project .duration h3 {
+        font-size: 12px;
+        margin-left: 8px;
+        margin-top: -2px;
+    }
+
+    .time-project .date i {
+        font-size: 18px;
+    }
+
+    .time-project .duration i {
+        font-size: 18px;
+    }
+
+    .project-tech h2 {
+        font-size: 20px;
+        margin-bottom: 5px;
+    }
+
+    .project-tech .tech-top i {
+        font-size: 20px;
+    }
+    
+    .project-tech .tech-bottom i {
+        font-size: 20px;
+    }
+
+    .project-tech .tech-top h3 {
+        font-size: 12px;
+    }
+
+    .project-tech .tech-top .java-tech h3 {
+        margin-left: 4px;
+        margin-top: 5px;
+    }
+
+    .project-tech .tech-top .python-tech h3 {
+        margin-left: 4px;
+        margin-top: 2px;
+    }
+
+    .project-tech .tech-bottom .js-tech h3 {
+        margin-left: 4px;
+        margin-top: 5px;
+    }
+
+    .project-tech .tech-bottom .php-tech h3 {
+        margin-left: 4px;
+        margin-top: 3px;
+    }
+
+    .project-tech .tech-bottom h3 {
+        font-size: 12px;
+    }
+
+    .project-tech .tech-top .python-tech {
+        margin-left: 7px;
+    }
+
+    .project-tech .tech-bottom .php-tech {
+        margin-left: 5px;
+    }
+
+
+    p {
+        margin: 20px 25px;
+       
+    }
+
+   
+
+} */

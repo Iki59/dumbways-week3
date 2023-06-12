@@ -1,0 +1,13 @@
+.container-contact form label {
+    font-size: 20px;
+}
+
+.container-contact form input, select {
+    height: 43px;
+    padding: 16px;
+}
+
+.container-contact form textarea {
+    height: 120px;
+    resize: none;
+}

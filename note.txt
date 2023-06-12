@@ -10,3 +10,4 @@ go get package_name/package_link
 
 go run main.go
 
+Golang adalah sebuah bahasa pemograman yang bisa digunakan untuk membangu aplikasi yang lebih efisien dan musah digunakan karena menggunakan code-code yang simpel
