@@ -11,3 +11,7 @@ go get package_name/package_link
 go run main.go
 
 Golang adalah sebuah bahasa pemograman yang bisa digunakan untuk membangu aplikasi yang lebih efisien dan musah digunakan karena menggunakan code-code yang simpel
+
+jadi disini kita membuat beberapa object di dalam structnya
+Struct Interface Manipulation adalah suatu cara dalam bahasa golang untuk menghandle method dan datanya
+disini sim berperan sebagai penampung data sementara
