@@ -33,12 +33,6 @@
                             href="/">Home</a>
                         </li>
                         <li class="nav-item ms-2">
-                            <a class="nav-link active text-blue fw-bold"
-                            aria-current="page" 
-                            href="project"
-                            >Project</a>
-                        </li>
-                        <li class="nav-item ms-2">
                             <a class="nav-link" 
                             href="testimonials"
                             >Testimonials</a>
@@ -53,7 +47,7 @@
             <div class="container-form">
                 <div class="form-container">
                     <h1 class="mb-5 text-center fw-bold">Add My Project</h1>
-                    <form onsubmit="addProject(event)" action="/project" method="post">
+                    <form action="/" method="post">
                         <div class="mb-4">
                             <label for="input-project-title" class="form-label fw-bold">Project Name</label>
                             <input type="text" 
@@ -103,6 +97,7 @@
                                  type="checkbox"
                                  id="inputJava"
                                  name="inputJava"
+                                 value="inputJava"
                                  >
                                  <label class="form-check-label" for="check1">Java</label>
                                 </div>
@@ -111,6 +106,7 @@
                                  type="checkbox" 
                                  id="inputPython"
                                  name="inputPython"
+                                 value="inputPython"
                                  >
                                  <label class="form-check-label" for="check2">Python</label>
                                 </div>
@@ -119,6 +115,7 @@
                                      type="checkbox"  
                                      id="inputJavascript"
                                      name="inputJavascript"
+                                     value="inputJavascript"
                                      >
                                      <label class="form-check-label" for="check3">Javascript</label>
                                  </div>
@@ -127,6 +124,7 @@
                                      type="checkbox" 
                                      id="inputPhp"
                                      name="inputPhp"
+                                     value="inputPhp"
                                      >
                                      <label class="form-check-label" for="check4">PHP</label>
                                 </div>

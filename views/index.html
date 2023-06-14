@@ -37,12 +37,6 @@
                         </li>
                         <li class="nav-item ms-2">
                             <a class="nav-link" 
-                            aria-current="page"
-                            href="project"
-                            >Project</a>
-                        </li>
-                        <li class="nav-item ms-2">
-                            <a class="nav-link" 
                             href="testimonials"
                             >Testimonials</a>
                         </li>
@@ -110,7 +104,57 @@
             </div>
         </div>
 
-        <div class="container-project">
+        <div class="project" style="background-color: #fff; padding-top: 60px;">
+            <h1 class="text-center fw-bold">MY PROJECT</h1>
+            <div class="text-end mt-4" style="margin-right: 145px;">
+                <a
+                  class="bg-blue text-decoration-none text-white px-3 py-2 mt-5"
+                  href="/form-project"
+                  >Add Project</a
+                >
+              </div>
+      
+              <div class="container-project">
+                  <div class="section-project" id="projects">
+                      <!-- range dipakai untuk perulangan, jadi dalam range nanti ada index dan datanya, diambil sesuai dari projects -->
+                      {{range $index, $data := .Projects}}
+                      <div class="card border-0 shadow-lg" style="width: 20rem;">
+                      <img src="public/image/apps.jpg" class="card-img-top" alt="apps">
+                      <div class="card-body p-3">
+                          <h2 class="mb-3">
+                              <a href="project-detail/{{$index}}" target="_blank" class="text-decoration-none fw-bolder fs-3" style="color: black;"> {{$data.ProjectName}} </a>
+                          </h2>
+                          Durasi: {{$data.Duration}}
+                          <p class="mt-2 mb-2" style="text-align: justify;">
+                              {{$data.Description}}
+                          </p>
+                          <div class="tech-icon fs-3 mb-2">
+                              {{if $data.Java}}
+                              <i class="fa-brands fa-java"></i>{{end}}
+                              {{if $data.Python}}
+                              <i class="fa-brands fa-python"></i>{{end}}
+                              {{if $data.Javascript}}
+                              <i class="fa-brands fa-square-js"></i>{{end}}
+                              {{if $data.PHP}}
+                              <i class="fa-brands fa-php"></i>{{end}}
+                          </div>
+                          <div class="btn-group d-flex justify-content-center gap-1 mb-0">
+                              <form action="/update-project/{{$index}}" method="GET">
+                                  <input type="submit" class="btn-delete bg-blue fs-sm-7 border-0 rounded-5 px-4 py-2 text-white" value="Update" style="cursor: pointer; width: 140px;"></input>
+                              </form>
+                              <form action="/project-delete/{{$index}}" method="POST">
+                                  <input type="submit" class="btn-delete bg-blue fs-sm-7 border-0 rounded-5 px-4 py-2 text-white" value="Delete" style="cursor: pointer; width: 140px;"></input>
+                              </form>
+                      </div>
+                      </div>
+                      </div>
+                  {{end}}
+                  </div>
+                  </div>        
+        </div>
+
+
+        <!-- <div class="container-project">
             <div class="section-project" id="projects">
                 <div class="card border-0 shadow-lg" style="width: 20rem;">
                 <img src="public/image/apps.jpg" class="card-img-top" alt="apps">
@@ -179,7 +223,7 @@
             </div>
             </div>
             </div>
-            </div>
+            </div> -->
 
 
 

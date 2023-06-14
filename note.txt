@@ -12,6 +12,34 @@ go run main.go
 
 Golang adalah sebuah bahasa pemograman yang bisa digunakan untuk membangu aplikasi yang lebih efisien dan musah digunakan karena menggunakan code-code yang simpel
 
+struct kurang lebihnya sama seperti ketika kita membuat class pada js kemarin, ketika kita membuat sebuah class, disitu kita membuat beberapa properties, jadi golang disini juga begitu, yaitu membangun beberapa properthies yang akan diisi nantinya
 jadi disini kita membuat beberapa object di dalam structnya
 Struct Interface Manipulation adalah suatu cara dalam bahasa golang untuk menghandle method dan datanya
 disini sim berperan sebagai penampung data sementara
+
+
+Postgresql
+Dalam postgre ketika kita ingin memasukkan tipe data dari sebuah object, itu ada dua yaitu character dan character varying. character alpha numerik juga tapi varying bisa memasukkan simbol juga.
+- fungsi not null adalah maksudnya valuenya tidak kosong, berarti suatu object itu harus diisi tidak boleh kosong
+- primary key maksudnya value ini bisa dilemparkan ke table yang lain, biasanya dibuat untuk id
+- foreign key maksudnya kunci asing
+- kalau kita tidak mengisi length character varying, itu dia akan otomatis membatasi hanya 255 karakter saja
+- biasanya id berbentuk integer, namun di postgre itu biasanya bentuknya serial, yang membuat id bisa diisi secara otomatis. ketika sudah disave maka tipe data otomatis berubah menjadi integer dengan default nextval('tbl_project_id_seq'::regclass)
+- Di setiap database harkatnya dia pasti punya id
+- kita biasa memasukkan post_date secara langsung di postgre yaitu dengan mengisi default tipe data date dengan Now() maka waktu yang muncul adalah waktu kapan kita menambahkan data tersebut
+
+--membuat tb_user dan tb_blog---
+
+- dalam tb_blog terdapat authorId dia langsung menggunakan integer bukan serial seperti id dikarenakan dia foreign keynya. di setiap blog itu berbeda authornya, jadi kalau authorId nya serial berarti bakal otomoatis nambah tanpa data, sedangkan authorId tidak butuh untuk otomatis nambah sehingga dia mengikut ke id, jadi supaya tidak dipanggil dua kali id di authorId juga
+- id itu nambah sendiri sedangkan authorId tidak nambah sendiri, kita yang mengaturnya.
+- jadi ketika belum ada misal id 3 di user kalau authorId blog menggunakan serial maka dia otomatis nambahin id 3 karena ngikut id primer key
+- kalo kita pakai tipe data time di post_date berarti mengambil waktu terbaru
+
+---Insert Script---
+- ketika kita insert script misal pada tbl_user maka ada insert into public tbl_user fungsinya menambah data baru oada tbl_user
+- cara mengisinya yaitu diisi pada tanda tanya
+
+Fungsi select script yaitu untuk menampilkan data yang ada di dalam (misal: tbl_user)
+
+---SQL---
+SQL atau Structured Query Language adalah sebuah bahasa pemograman yang terfokus pada pembangunan sebuah database

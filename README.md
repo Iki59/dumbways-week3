@@ -97,6 +97,29 @@ strconv merupakan sebuah package yang membantu kita untuk mengkonversikan tipe d
 
 - Atoi: mengubah string menjadi integer
 
+# Database Connection URL
+
+Bagaimana caranya kita bisa mengkoneksikan database pada aplikasi Go kita?
+
+Install terlebih dahulu package pgx
+
+```bash
+go get github.com/jackc/pgx/v4
+```
+
+dan tambahkan package ini ke dalam code kalian
+
+url koneksi ke database akan berbentuk seperti ini:
+
+`postgres://user:password@host:port/dbname`
+
+- user = user dari database
+- password = password database
+- host = host dari database (secara lokal akan menggunakan "localhost")
+- port = port dari database (postgresql biasanya menggunakan 5432)
+- dbname = nama dari database kalian
+
+
 # Referensi
 
 [Slice Append Cheat Sheet](https://ueokande.github.io/go-slice-tericks)

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"dumbwaysgolang/connection"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -13,6 +14,8 @@ import (
 // nama dari structnya adalah Project
 // yang membangun object/properties
 type Project struct {
+	Id string
+	// ID          int
 	ProjectName string
 	Description string
 	StartDate   string
@@ -24,6 +27,12 @@ type Project struct {
 	PHP         bool
 	Author      string
 	PostDate    string
+	// PostDate        time.Time
+	Image           string
+	CheckJava       string
+	CheckPython     string
+	CheckJavascript string
+	CheckPHP        string
 }
 
 // cara ngisi valuenya
@@ -42,7 +51,6 @@ var dataProject = []Project{
 		Python:      true,
 		Javascript:  true,
 		PHP:         true,
-		PostDate:    "07/06/2023",
 	},
 	{
 		ProjectName: "Pangahaku Mobile App",
@@ -54,7 +62,6 @@ var dataProject = []Project{
 		Python:      true,
 		Javascript:  true,
 		PHP:         true,
-		PostDate:    "07/06/2023",
 	},
 	{
 		ProjectName: "Legopedia Mobile App",
@@ -66,12 +73,12 @@ var dataProject = []Project{
 		Python:      true,
 		Javascript:  true,
 		PHP:         true,
-		PostDate:    "07/06/2023",
 	},
 	// ini dinamakan slice
 }
 
 func main() {
+	connection.DatabaseConnect()
 	e := echo.New() //sama sperti let dan sebagainya dia mendeklarasikan titik dua dan sama dengan itu ngisi sekaligus deklarasiin
 
 	// e = echo package
@@ -84,14 +91,14 @@ func main() {
 	// Routing
 	e.GET("/hello", helloWorld)
 	e.GET("/", home)
-	e.GET("/project", project)
+	e.GET("/", project)
 	e.GET("/contact", contact)
 	e.GET("/testimonials", testimonials)
 	e.GET("project-detail/:id", projectDetail)
 	e.GET("/form-project", formAddProject)
 	e.GET("update-project/:id", updatingProject)
 
-	e.POST("/project", addProject)
+	e.POST("/", addProject)
 	e.POST("/project-delete/:id", deleteProject)
 	e.POST("/update-project/:id", updateProject)
 
@@ -132,8 +139,28 @@ func home(c echo.Context) error {
 }
 
 func project(c echo.Context) error {
+	// data, _ := connection.Conn.Query(context.Background(), "SELECT id, title, description, image, post_date FROM tbl_project")
 
-	var tmpl, err = template.ParseFiles("views/project.html")
+	// var result []Project
+	// for data.Next() {
+	// 	var each = Project{}
+
+	// 	err := data.Scan(&each.ID, &each.ProjectName, &each.Description, &each.Image, &each.PostDate)
+	// 	if err != nil {
+	// 		fmt.Println(err.Error())
+	// 		return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
+	// 	}
+
+	// 	each.Author = "Muhammad Rizki B"
+
+	// 	result = append(result, each)
+	// }
+
+	projects := map[string]interface{}{
+		"Projects": dataProject,
+		// "Projects": result,
+	}
+	var tmpl, err = template.ParseFiles("views/index.html")
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
@@ -141,9 +168,6 @@ func project(c echo.Context) error {
 
 	// refetch
 
-	projects := map[string]interface{}{
-		"Projects": dataProject,
-	}
 	// disini kita mapping projects dengan data Project yang ada dibawah
 	// jadi kita sudah tidak memanggil dataProject dengan namanya sendiri, melainkan dengan nama aliasnya karena sudah di mapping oleh projects
 	// sehingga di html nya itu pemag\nggilan datanya {{.projects.Title}}
@@ -289,7 +313,7 @@ func addProject(c echo.Context) error {
 		Python:      (checktwo == "inputPython"),
 		Javascript:  (checkthree == "inputJavascript"),
 		PHP:         (checkfour == "inputPhp"),
-		PostDate:    time.Now().String(),
+		// PostDate:    time.Now().String(),
 	}
 
 	// cara agar data yang kita dapatkan di newProject dimasukkan ke penampung data atau slice diatas
@@ -301,7 +325,7 @@ func addProject(c echo.Context) error {
 
 	fmt.Println(dataProject)
 
-	return c.Redirect(http.StatusMovedPermanently, "/project")
+	return c.Redirect(http.StatusMovedPermanently, "/")
 
 }
 
@@ -317,8 +341,6 @@ func updateProject(c echo.Context) error {
 	checktwo := c.FormValue("inputPython")
 	checkthree := c.FormValue("inputJavascript")
 	checkfour := c.FormValue("inputPhp")
-
-	fmt.Println("Index:", id)
 
 	var updateProject = Project{
 		ProjectName: projectname,
@@ -341,7 +363,7 @@ func updateProject(c echo.Context) error {
 
 	fmt.Println(dataProject)
 
-	return c.Redirect(http.StatusMovedPermanently, "/project")
+	return c.Redirect(http.StatusMovedPermanently, "/")
 
 }
 
@@ -349,14 +371,12 @@ func updateProject(c echo.Context) error {
 func deleteProject(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	fmt.Println("Index:", id)
-
 	dataProject = append(dataProject[:id], dataProject[id+1:]...)
 	// id+1 dimaksudkan agar indeks setelahnya mengisi indeks yang sudah dihapus tadi
 	// ditambah 3 titik karena diatas another slice
 	// sebenernya di append itu bisa menambahkan slicing yang lain
 
-	return c.Redirect(http.StatusMovedPermanently, "/project")
+	return c.Redirect(http.StatusMovedPermanently, "/")
 }
 
 func Durasi(startdate, enddate string) string {

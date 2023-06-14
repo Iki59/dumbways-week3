@@ -37,12 +37,6 @@
                     </li>
                     <li class="nav-item ms-2">
                         <a class="nav-link" 
-                        aria-current="page"
-                        href="project"
-                        >Project</a>
-                    </li>
-                    <li class="nav-item ms-2">
-                        <a class="nav-link" 
                         href="testimonials"
                         >Testimonials</a>
                     </li>
@@ -64,13 +58,13 @@
                     <div class="date d-flex gap-2 mb-2">
                       <i class="fa-regular fa-calendar-days fs-4" style="color: #000000"></i>
                       <h3 class="fs-5 mt-1">
-                        1 Jan 2023 - 1 Maret 2022
+                        {{.Project.StartDate}} | {{.Project.EndDate}}
                       </h3>
                     </div>
                     <div class="duration d-flex gap-2 mb-4">
                       <i class="fa-regular fa-clock fs-4" style="color: #000000"></i>
                       <h3 class="fs-5">
-                        3 Bulan
+                        {{.Project.Duration}}
                       </h3>
                     </div>
                   </div>
