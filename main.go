@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"dumbwaysgolang/connection"
 	"fmt"
 	"html/template"
@@ -14,25 +15,24 @@ import (
 // nama dari structnya adalah Project
 // yang membangun object/properties
 type Project struct {
-	Id string
-	// ID          int
-	ProjectName string
-	Description string
-	StartDate   string
-	EndDate     string
-	Duration    string
-	Java        bool
-	Python      bool
-	Javascript  bool
-	PHP         bool
-	Author      string
-	PostDate    string
-	// PostDate        time.Time
+	ID              int
+	ProjectName     string
+	Description     string
+	StartDate       string
+	EndDate         string
+	Duration        string
+	Java            bool
+	Python          bool
+	Javascript      bool
+	PHP             bool
+	Author          string
+	PostDate        time.Time
 	Image           string
 	CheckJava       string
 	CheckPython     string
 	CheckJavascript string
 	CheckPHP        string
+	FormatDate      string
 }
 
 // cara ngisi valuenya
@@ -41,43 +41,44 @@ type Project struct {
 // diatas kita sudah membuat data dalam bentuk array, yang di dalamnya ada beberapa object yang sudah dibangun oleh struct diatas
 // jadi data di dalamnya harus sesuai dengan struct diatas
 var dataProject = []Project{
-	{
-		ProjectName: "Dumbways Mobile App",
-		Description: "Lorem Ipsum ajalah dulu",
-		StartDate:   "2023-03-03",
-		EndDate:     "2023-06-06",
-		Duration:    "3 Bulan",
-		Java:        true,
-		Python:      true,
-		Javascript:  true,
-		PHP:         true,
-	},
-	{
-		ProjectName: "Pangahaku Mobile App",
-		Description: "Lorem Ipsum ajalah dulu",
-		StartDate:   "2023-03-03",
-		EndDate:     "2023-06-06",
-		Duration:    "3 Bulan",
-		Java:        true,
-		Python:      true,
-		Javascript:  true,
-		PHP:         true,
-	},
-	{
-		ProjectName: "Legopedia Mobile App",
-		Description: "Lorem Ipsum ajalah dulu",
-		StartDate:   "2023-03-03",
-		EndDate:     "2023-06-06",
-		Duration:    "3 Bulan",
-		Java:        true,
-		Python:      true,
-		Javascript:  true,
-		PHP:         true,
-	},
+	// {
+	// 	ProjectName: "Dumbways Mobile App",
+	// 	Description: "Lorem Ipsum ajalah dulu",
+	// 	StartDate:   "2023-03-03",
+	// 	EndDate:     "2023-06-06",
+	// 	Duration:    "3 Bulan",
+	// 	Java:        true,
+	// 	Python:      true,
+	// 	Javascript:  true,
+	// 	PHP:         true,
+	// },
+	// {
+	// 	ProjectName: "Pangahaku Mobile App",
+	// 	Description: "Lorem Ipsum ajalah dulu",
+	// 	StartDate:   "2023-03-03",
+	// 	EndDate:     "2023-06-06",
+	// 	Duration:    "3 Bulan",
+	// 	Java:        true,
+	// 	Python:      true,
+	// 	Javascript:  true,
+	// 	PHP:         true,
+	// },
+	// {
+	// 	ProjectName: "Legopedia Mobile App",
+	// 	Description: "Lorem Ipsum ajalah dulu",
+	// 	StartDate:   "2023-03-03",
+	// 	EndDate:     "2023-06-06",
+	// 	Duration:    "3 Bulan",
+	// 	Java:        true,
+	// 	Python:      true,
+	// 	Javascript:  true,
+	// 	PHP:         true,
+	// },
 	// ini dinamakan slice
 }
 
 func main() {
+	// db connection
 	connection.DatabaseConnect()
 	e := echo.New() //sama sperti let dan sebagainya dia mendeklarasikan titik dua dan sama dengan itu ngisi sekaligus deklarasiin
 
@@ -139,26 +140,27 @@ func home(c echo.Context) error {
 }
 
 func project(c echo.Context) error {
-	// data, _ := connection.Conn.Query(context.Background(), "SELECT id, title, description, image, post_date FROM tbl_project")
+	data, _ := connection.Conn.Query(context.Background(), "SELECT id, name, start_date, end_date, description, java, python, javascript, php, image FROM tbl_project")
 
-	// var result []Project
-	// for data.Next() {
-	// 	var each = Project{}
+	var result []Project
+	for data.Next() {
+		var each = Project{}
 
-	// 	err := data.Scan(&each.ID, &each.ProjectName, &each.Description, &each.Image, &each.PostDate)
-	// 	if err != nil {
-	// 		fmt.Println(err.Error())
-	// 		return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
-	// 	}
+		err := data.Scan(&each.ID, &each.ProjectName, &each.StartDate, &each.EndDate, &each.Description, &each.Java, &each.Python, &each.Javascript, &each.PHP, &each.Image)
+		if err != nil {
+			fmt.Println(err.Error())
+			return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
+		}
 
-	// 	each.Author = "Muhammad Rizki B"
+		each.FormatDate = each.PostDate.Format("5 September 1999")
+		each.Author = "Muhammad Rizki B"
 
-	// 	result = append(result, each)
-	// }
+		result = append(result, each)
+	}
 
 	projects := map[string]interface{}{
-		"Projects": dataProject,
-		// "Projects": result,
+		// "Projects": dataProject,
+		"Projects": result,
 	}
 	var tmpl, err = template.ParseFiles("views/index.html")
 
@@ -306,13 +308,13 @@ func addProject(c echo.Context) error {
 	var newProject = Project{
 		ProjectName: projectname,
 		Description: description,
-		StartDate:   startdate,
-		EndDate:     enddate,
-		Duration:    duration,
-		Java:        (checkone == "inputJava"),
-		Python:      (checktwo == "inputPython"),
-		Javascript:  (checkthree == "inputJavascript"),
-		PHP:         (checkfour == "inputPhp"),
+		// StartDate:   startdate,
+		// EndDate:     enddate,
+		Duration:   duration,
+		Java:       (checkone == "inputJava"),
+		Python:     (checktwo == "inputPython"),
+		Javascript: (checkthree == "inputJavascript"),
+		PHP:        (checkfour == "inputPhp"),
 		// PostDate:    time.Now().String(),
 	}
 
@@ -345,13 +347,13 @@ func updateProject(c echo.Context) error {
 	var updateProject = Project{
 		ProjectName: projectname,
 		Description: description,
-		StartDate:   startdate,
-		EndDate:     enddate,
-		Duration:    duration,
-		Java:        (checkone == "inputJava"),
-		Python:      (checktwo == "inputPython"),
-		Javascript:  (checkthree == "inputJavascript"),
-		PHP:         (checkfour == "inputPhp"),
+		// StartDate:   startdate,
+		// EndDate:     enddate,
+		Duration:   duration,
+		Java:       (checkone == "inputJava"),
+		Python:     (checktwo == "inputPython"),
+		Javascript: (checkthree == "inputJavascript"),
+		PHP:        (checkfour == "inputPhp"),
 	}
 
 	// cara agar data yang kita dapatkan di newProject dimasukkan ke penampung data atau slice diatas
@@ -391,24 +393,16 @@ func Durasi(startdate, enddate string) string {
 
 	var duration string
 
-	if durationYears > 1 {
-		duration = strconv.Itoa(durationYears) + " Tahun"
-	} else if durationYears > 0 {
+	if durationYears > 0 {
 		duration = strconv.Itoa(durationYears) + "Tahun"
 	} else {
-		if durationMonths > 1 {
-			duration = strconv.Itoa(durationMonths) + " Bulan"
-		} else if durationMonths > 0 {
+		if durationMonths > 0 {
 			duration = strconv.Itoa(durationMonths) + " Bulan"
 		} else {
-			if durationWeeks > 1 {
-				duration = strconv.Itoa(durationWeeks) + "Minggu"
-			} else if durationWeeks > 0 {
+			if durationWeeks > 0 {
 				duration = strconv.Itoa(durationWeeks) + "Minggu"
 			} else {
-				if durationDays > 1 {
-					duration = strconv.Itoa(durationDays) + " Hari"
-				} else {
+				if durationDays > 0 {
 					duration = strconv.Itoa(durationDays) + " Hari"
 				}
 			}

@@ -9,7 +9,7 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: rgba(51, 93, 121, 0.493);
+    background-color: rgba(51, 93, 121, 0.493) !important;
 
 }
 
