@@ -18,9 +18,9 @@ type Project struct {
 	ID              int
 	ProjectName     string
 	Description     string
-	StartDate       string
-	EndDate         string
-	Duration        string
+	StartDate       time.Time
+	EndDate         time.Time
+	Duration        time.Duration
 	Java            bool
 	Python          bool
 	Javascript      bool
@@ -33,6 +33,7 @@ type Project struct {
 	CheckJavascript string
 	CheckPHP        string
 	FormatDate      string
+	Duration_Format string
 }
 
 // cara ngisi valuenya
@@ -140,13 +141,13 @@ func home(c echo.Context) error {
 }
 
 func project(c echo.Context) error {
-	data, _ := connection.Conn.Query(context.Background(), "SELECT id, name, start_date, end_date, description, java, python, javascript, php, image FROM tbl_project")
+	data, _ := connection.Conn.Query(context.Background(), "SELECT id, name, description, java, python, javascript, php, image, start_date, end_date, duration FROM tbl_project")
 
 	var result []Project
 	for data.Next() {
 		var each = Project{}
 
-		err := data.Scan(&each.ID, &each.ProjectName, &each.StartDate, &each.EndDate, &each.Description, &each.Java, &each.Python, &each.Javascript, &each.PHP, &each.Image)
+		err := data.Scan(&each.ID, &each.ProjectName, &each.Description, &each.Java, &each.Python, &each.Javascript, &each.PHP, &each.Image, &each.StartDate, &each.EndDate, &each.Duration)
 		if err != nil {
 			fmt.Println(err.Error())
 			return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
@@ -154,6 +155,8 @@ func project(c echo.Context) error {
 
 		each.FormatDate = each.PostDate.Format("5 September 1999")
 		each.Author = "Muhammad Rizki B"
+		// each.Duration = each.EndDate.Sub(each.StartDate)
+		each.Duration_Format = Format_Durasi(each.Duration)
 
 		result = append(result, each)
 	}
@@ -296,7 +299,7 @@ func addProject(c echo.Context) error {
 	projectname := c.FormValue("projectName")
 	startdate := c.FormValue("startDate")
 	enddate := c.FormValue("endDate")
-	duration := Durasi(startdate, enddate)
+	// duration := Durasi(startdate, enddate)
 	description := c.FormValue("descriptionProject")
 	checkone := c.FormValue("inputJava")
 	checktwo := c.FormValue("inputPython")
@@ -310,7 +313,7 @@ func addProject(c echo.Context) error {
 		Description: description,
 		// StartDate:   startdate,
 		// EndDate:     enddate,
-		Duration:   duration,
+		// Duration:   duration,
 		Java:       (checkone == "inputJava"),
 		Python:     (checktwo == "inputPython"),
 		Javascript: (checkthree == "inputJavascript"),
@@ -335,9 +338,9 @@ func updateProject(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	projectname := c.FormValue("projectName")
-	startdate := c.FormValue("startDate")
-	enddate := c.FormValue("endDate")
-	duration := Durasi(startdate, enddate)
+	// startdate := c.FormValue("startDate")
+	// enddate := c.FormValue("endDate")
+	// duration := Durasi(startdate, enddate)
 	description := c.FormValue("descriptionProject")
 	checkone := c.FormValue("inputJava")
 	checktwo := c.FormValue("inputPython")
@@ -349,7 +352,7 @@ func updateProject(c echo.Context) error {
 		Description: description,
 		// StartDate:   startdate,
 		// EndDate:     enddate,
-		Duration:   duration,
+		// Duration:   duration,
 		Java:       (checkone == "inputJava"),
 		Python:     (checktwo == "inputPython"),
 		Javascript: (checkthree == "inputJavascript"),
@@ -381,33 +384,66 @@ func deleteProject(c echo.Context) error {
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
 
-func Durasi(startdate, enddate string) string {
-	startTime, _ := time.Parse("2006-01-02", startdate)
-	endTime, _ := time.Parse("2006-01-02", enddate)
+// func Durasi(startdate, enddate string) string {
+// 	startTime, _ := time.Parse("2006-01-02", startdate)
+// 	endTime, _ := time.Parse("2006-01-02", enddate)
 
-	durationTime := int(endTime.Sub(startTime).Hours())
-	durationDays := durationTime / 24
-	durationWeeks := durationDays / 7
-	durationMonths := durationWeeks / 4
-	durationYears := durationMonths / 12
+// 	durationTime := int(endTime.Sub(startTime).Hours())
+// 	durationDays := durationTime / 24
+// 	durationWeeks := durationDays / 7
+// 	durationMonths := durationWeeks / 4
+// 	durationYears := durationMonths / 12
 
-	var duration string
+// 	var duration string
 
-	if durationYears > 0 {
-		duration = strconv.Itoa(durationYears) + "Tahun"
+// 	if durationYears > 0 {
+// 		duration = strconv.Itoa(durationYears) + "Tahun"
+// 	} else {
+// 		if durationMonths > 0 {
+// 			duration = strconv.Itoa(durationMonths) + " Bulan"
+// 		} else {
+// 			if durationWeeks > 0 {
+// 				duration = strconv.Itoa(durationWeeks) + "Minggu"
+// 			} else {
+// 				if durationDays > 0 {
+// 					duration = strconv.Itoa(durationDays) + " Hari"
+// 				}
+// 			}
+// 		}
+// 	}
+
+// 	return duration
+// }
+
+func Format_Durasi(Duration time.Duration) string {
+
+	Days := int(Duration.Hours() / 24)
+	Weeks := Days / 7
+	Months := Days / 30
+	Years := Months / 12
+
+	if Years > 1 {
+		return strconv.Itoa(Years) + " years"
+	} else if Years > 0 {
+		return strconv.Itoa(Years) + " year"
 	} else {
-		if durationMonths > 0 {
-			duration = strconv.Itoa(durationMonths) + " Bulan"
+		if Months > 1 {
+			return strconv.Itoa(Months) + " months"
+		} else if Months > 0 {
+			return strconv.Itoa(Months) + " month"
 		} else {
-			if durationWeeks > 0 {
-				duration = strconv.Itoa(durationWeeks) + "Minggu"
+			if Weeks > 1 {
+				return strconv.Itoa(Weeks) + " weeks"
+			} else if Weeks > 0 {
+				return strconv.Itoa(Weeks) + " week"
 			} else {
-				if durationDays > 0 {
-					duration = strconv.Itoa(durationDays) + " Hari"
+				if Days > 1 {
+					return strconv.Itoa(Days) + " days"
+				} else {
+					return strconv.Itoa(Days) + " day"
 				}
 			}
 		}
 	}
 
-	return duration
 }
