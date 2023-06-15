@@ -15,25 +15,27 @@ import (
 // nama dari structnya adalah Project
 // yang membangun object/properties
 type Project struct {
-	ID              int
-	ProjectName     string
-	Description     string
-	StartDate       time.Time
-	EndDate         time.Time
-	Duration        time.Duration
-	Java            bool
-	Python          bool
-	Javascript      bool
-	PHP             bool
-	Author          string
-	PostDate        time.Time
-	Image           string
-	CheckJava       string
-	CheckPython     string
-	CheckJavascript string
-	CheckPHP        string
-	FormatDate      string
-	Duration_Format string
+	ID                int
+	ProjectName       string
+	Description       string
+	StartDate         time.Time
+	EndDate           time.Time
+	Duration          string
+	Java              bool
+	Python            bool
+	Javascript        bool
+	PHP               bool
+	Author            string
+	PostDate          time.Time
+	Image             string
+	CheckJava         string
+	CheckPython       string
+	CheckJavascript   string
+	CheckPHP          string
+	FormatDate        string
+	Duration_Format   string
+	Format_Start_Date string
+	Format_End_Date   string
 }
 
 // cara ngisi valuenya
@@ -156,7 +158,7 @@ func project(c echo.Context) error {
 		each.FormatDate = each.PostDate.Format("5 September 1999")
 		each.Author = "Muhammad Rizki B"
 		// each.Duration = each.EndDate.Sub(each.StartDate)
-		each.Duration_Format = Format_Durasi(each.Duration)
+		// each.Duration_Format = Durasi(each.Duration)
 
 		result = append(result, each)
 	}
@@ -214,38 +216,53 @@ func projectDetail(c echo.Context) error {
 	// }
 	// cara mengisi project detail sesuai dengan yang diinput
 
-	var ProjectDetail = Project{}
+	var ProjectDetail = Project{} // ini masih dipakai untuk database
+
+	// kenapa pake query row karena yang dicari hanya satu baris data pada table
+	// pakai $1 karena dia mendapatkan value dari id, maksudnya value pertamanya nanti diisi sesuai dengan id, $1 akan diisi sesuai dengan id kemudian bisa diisi value kedua dengan $2 diikuti value setelahnya.
+	err := connection.Conn.QueryRow(context.Background(), "SELECT id, name, description, java, python, javascript, php, image, start_date, end_date, duration FROM tbl_project WHERE id=$1", id).Scan(
+		&ProjectDetail.ID, &ProjectDetail.ProjectName, &ProjectDetail.Description, &ProjectDetail.Java, &ProjectDetail.Python, &ProjectDetail.Javascript, &ProjectDetail.PHP, &ProjectDetail.Image, &ProjectDetail.StartDate, &ProjectDetail.EndDate, &ProjectDetail.Duration)
+	// guna dari tanda & yaitu sebagai pointer, agar si ProjectDetail tau tipe datanya apa sesuai dengan struct yang dipasangkan
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"mesage": err.Error()})
+	}
+
+	ProjectDetail.Author = "Muhammad Rizki B"
+	ProjectDetail.FormatDate = ProjectDetail.PostDate.Format("2 January 2006")
+	// ProjectDetail.Duration_Format = Durasi(ProjectDetail.Duration)
+	ProjectDetail.Format_Start_Date = ProjectDetail.StartDate.Format("2 January 2006")
+	ProjectDetail.Format_End_Date = ProjectDetail.EndDate.Format("2 January 2006")
 
 	// for melakukan perulangan
 	// i = penampung index
 	// data = penampung data dari range
 	// range = jarak/banyaknya data
 	// dataProject = sumber data yang ingin dilakukan perulangan
-	for i, data := range dataProject {
-		if id == i {
-			ProjectDetail = Project{
-				ProjectName: data.ProjectName,
-				StartDate:   data.StartDate,
-				EndDate:     data.EndDate,
-				Duration:    data.Duration,
-				Description: data.Description,
-				Java:        data.Java,
-				Python:      data.Python,
-				Javascript:  data.Javascript,
-				PHP:         data.PHP,
-			}
-		}
-	}
-
+	// for i, data := range dataProject {
+	// 	if id == i {
+	// 		ProjectDetail = Project{
+	// 			ProjectName: data.ProjectName,
+	// 			StartDate:   data.StartDate,
+	// 			EndDate:     data.EndDate,
+	// 			Duration:    data.Duration,
+	// 			Description: data.Description,
+	// 			Java:        data.Java,
+	// 			Python:      data.Python,
+	// 			Javascript:  data.Javascript,
+	// 			PHP:         data.PHP,
+	// 		}
+	// 	}
+	// }
 	// data yang ditampilkan itu cuma data yang ketemu indeksnya, makanya diatas dilakukan pengecekan if id === i yaitu sesuai dengan loopingannya
 
 	data := map[string]interface{}{
-		"Project": ProjectDetail,
+		"Project_Detail": ProjectDetail,
 	}
 
-	var tmpl, err = template.ParseFiles("views/project-detail.html")
+	var tmpl, errTemplate = template.ParseFiles("views/project-detail.html")
 
-	if err != nil {
+	if errTemplate != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 
@@ -254,31 +271,35 @@ func projectDetail(c echo.Context) error {
 
 func updatingProject(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
-	var ProjectDetail = Project{}
 
-	for i, data := range dataProject {
-		if id == i {
-			ProjectDetail = Project{
-				ProjectName: data.ProjectName,
-				StartDate:   data.StartDate,
-				EndDate:     data.EndDate,
-				Duration:    data.Duration,
-				Description: data.Description,
-				Java:        data.Java,
-				Python:      data.Python,
-				Javascript:  data.Javascript,
-				PHP:         data.PHP,
-			}
-		}
-	}
+	var ProjectUpdate = Project{}
+
+	err := connection.Conn.QueryRow(context.Background(), "SELECT id, name, description, java, python, javascript, php, image, start_date, end_date, duration FROM tbl_project WHERE id=$1", id).Scan(
+		&ProjectUpdate.ID, &ProjectUpdate.ProjectName, &ProjectUpdate.Description, &ProjectUpdate.Java, &ProjectUpdate.Python, &ProjectUpdate.Javascript, &ProjectUpdate.PHP, &ProjectUpdate.Image, &ProjectUpdate.StartDate, &ProjectUpdate.EndDate, &ProjectUpdate.Duration)
+
+	// for i, data := range dataProject {
+	// 	if id == i {
+	// 		ProjectDetail = Project{
+	// 			ProjectName: data.ProjectName,
+	// 			StartDate:   data.StartDate,
+	// 			EndDate:     data.EndDate,
+	// 			Duration:    data.Duration,
+	// 			Description: data.Description,
+	// 			Java:        data.Java,
+	// 			Python:      data.Python,
+	// 			Javascript:  data.Javascript,
+	// 			PHP:         data.PHP,
+	// 		}
+	// 	}
+	// }
 
 	data := map[string]interface{}{
-		"Project": ProjectDetail,
+		"Project": ProjectUpdate,
 	}
 
-	var tmpl, err = template.ParseFiles("views/update-project.html")
+	var tmpl, errTemplate = template.ParseFiles("views/update-project.html")
 
-	if err != nil {
+	if errTemplate != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 
@@ -299,34 +320,62 @@ func addProject(c echo.Context) error {
 	projectname := c.FormValue("projectName")
 	startdate := c.FormValue("startDate")
 	enddate := c.FormValue("endDate")
-	// duration := Durasi(startdate, enddate)
+	duration := Durasi(startdate, enddate)
 	description := c.FormValue("descriptionProject")
-	checkone := c.FormValue("inputJava")
-	checktwo := c.FormValue("inputPython")
-	checkthree := c.FormValue("inputJavascript")
-	checkfour := c.FormValue("inputPhp")
+	// checkone := c.FormValue("inputJava")
+	// checktwo := c.FormValue("inputPython")
+	// checkthree := c.FormValue("inputJavascript")
+	// checkfour := c.FormValue("inputPhp")
+	// author:= "Muhammad Rizki B"
 
-	println("Title:" + projectname + ", Description:" + description + ", Start Date:" + startdate + ", End Date:" + enddate + ", Java:" + checkone + ", Python:" + checktwo + ", Javascript:" + checkthree + ", PHP:" + checkfour)
-
-	var newProject = Project{
-		ProjectName: projectname,
-		Description: description,
-		// StartDate:   startdate,
-		// EndDate:     enddate,
-		// Duration:   duration,
-		Java:       (checkone == "inputJava"),
-		Python:     (checktwo == "inputPython"),
-		Javascript: (checkthree == "inputJavascript"),
-		PHP:        (checkfour == "inputPhp"),
-		// PostDate:    time.Now().String(),
+	var checkone bool
+	if c.FormValue("inputJava") == "inputJava" {
+		checkone = true
 	}
+
+	var checktwo bool
+	if c.FormValue("inputPython") == "inputPython" {
+		checktwo = true
+	}
+
+	var checkthree bool
+	if c.FormValue("inputJavascript") == "inputJavascript" {
+		checkthree = true
+	}
+
+	var checkfour bool
+	if c.FormValue("inputPhp") == "inputPhp" {
+		checkfour = true
+	}
+
+	_, err := connection.Conn.Exec(context.Background(), "INSERT INTO tbl_project (name, description, java, python, javascript, php, image, start_date, end_date, duration) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", projectname, description, checkone, checktwo, checkthree, checkfour, "apps-img-jpg", startdate, enddate, duration)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	// value pertama tidak dipanggil, kita cuma butuh errornya saja
+	// kenapa pake exec karena dia mengeksekusi sesuatu yaitu menambahkan data
+	// println("Title:" + projectname + ", Description:" + description + ", Start Date:" + startdate + ", End Date:" + enddate + ", Java:" + checkone + ", Python:" + checktwo + ", Javascript:" + checkthree + ", PHP:" + checkfour)
+
+	// var newProject = Project{
+	// 	ProjectName: projectname,
+	// 	Description: description,
+	// StartDate:   startdate,
+	// EndDate:     enddate,
+	// Duration:   duration,
+	// Java:       (checkone == "inputJava"),
+	// Python:     (checktwo == "inputPython"),
+	// Javascript: (checkthree == "inputJavascript"),
+	// PHP:        (checkfour == "inputPhp"),
+	// PostDate:    time.Now().String(),
+	// }
 
 	// cara agar data yang kita dapatkan di newProject dimasukkan ke penampung data atau slice diatas
 	// appaend adalah fungsi yang kita jalankan untuk menambahakan data newProject ke slice dataProject
 	// kurang lebihnya mirip dengan fungsi push pada javascript
 	// param 1 =  dimana datanya ditampung
 	// param 2 = data yang akan ditampung
-	dataProject = append(dataProject, newProject)
+	// dataProject = append(dataProject, newProject)
 
 	fmt.Println(dataProject)
 
@@ -337,36 +386,59 @@ func addProject(c echo.Context) error {
 func updateProject(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	projectname := c.FormValue("projectName")
-	// startdate := c.FormValue("startDate")
-	// enddate := c.FormValue("endDate")
-	// duration := Durasi(startdate, enddate)
-	description := c.FormValue("descriptionProject")
-	checkone := c.FormValue("inputJava")
-	checktwo := c.FormValue("inputPython")
-	checkthree := c.FormValue("inputJavascript")
-	checkfour := c.FormValue("inputPhp")
+	fmt.Println("ID :", id)
 
-	var updateProject = Project{
-		ProjectName: projectname,
-		Description: description,
-		// StartDate:   startdate,
-		// EndDate:     enddate,
-		// Duration:   duration,
-		Java:       (checkone == "inputJava"),
-		Python:     (checktwo == "inputPython"),
-		Javascript: (checkthree == "inputJavascript"),
-		PHP:        (checkfour == "inputPhp"),
+	projectname := c.FormValue("projectName")
+	startdate := c.FormValue("startDate")
+	enddate := c.FormValue("endDate")
+	duration := Durasi(startdate, enddate)
+	description := c.FormValue("descriptionProject")
+	var checkone bool
+	if c.FormValue("inputJava") == "inputJava" {
+		checkone = true
 	}
+
+	var checktwo bool
+	if c.FormValue("inputPython") == "inputPython" {
+		checktwo = true
+	}
+
+	var checkthree bool
+	if c.FormValue("inputJavascript") == "inputJavascript" {
+		checkthree = true
+	}
+
+	var checkfour bool
+	if c.FormValue("inputPhp") == "inputPhp" {
+		checkfour = true
+	}
+
+	_, err := connection.Conn.Exec(context.Background(), "UPDATE tbl_project SET name=$1, description=$2, java=$3, python=$4, javascript=$5, php=$6, image=$7, start_date=$8, end_date=$9, duration=$10", projectname, description, checkone, checktwo, checkthree, checkfour, "apps-img-jpg", startdate, enddate, duration)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	// var updateProject = Project{
+	// 	ProjectName: projectname,
+	// 	Description: description,
+	// 	// StartDate:   startdate,
+	// 	// EndDate:     enddate,
+	// 	// Duration:   duration,
+	// 	Java:       (checkone == "inputJava"),
+	// 	Python:     (checktwo == "inputPython"),
+	// 	Javascript: (checkthree == "inputJavascript"),
+	// 	PHP:        (checkfour == "inputPhp"),
+	// }
 
 	// cara agar data yang kita dapatkan di newProject dimasukkan ke penampung data atau slice diatas
 	// appaend adalah fungsi yang kita jalankan untuk menambahakan data newProject ke slice dataProject
 	// kurang lebihnya mirip dengan fungsi push pada javascript
 	// param 1 =  dimana datanya ditampung
 	// param 2 = data yang akan ditampung
-	dataProject[id] = updateProject
+	// dataProject[id] = updateProject
 
-	fmt.Println(dataProject)
+	// fmt.Println(dataProject)
 
 	return c.Redirect(http.StatusMovedPermanently, "/")
 
@@ -376,7 +448,15 @@ func updateProject(c echo.Context) error {
 func deleteProject(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	dataProject = append(dataProject[:id], dataProject[id+1:]...)
+	fmt.Println("ID:", id)
+
+	_, err := connection.Conn.Exec(context.Background(), "DELETE FROM tbl_project WHERE id=$1", id)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	// dataProject = append(dataProject[:id], dataProject[id+1:]...)
 	// id+1 dimaksudkan agar indeks setelahnya mengisi indeks yang sudah dihapus tadi
 	// ditambah 3 titik karena diatas another slice
 	// sebenernya di append itu bisa menambahkan slicing yang lain
@@ -384,66 +464,41 @@ func deleteProject(c echo.Context) error {
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
 
-// func Durasi(startdate, enddate string) string {
-// 	startTime, _ := time.Parse("2006-01-02", startdate)
-// 	endTime, _ := time.Parse("2006-01-02", enddate)
+func Durasi(startdate string, enddate string) string {
+	start, _ := time.Parse("2006-01-02", startdate)
+	end, _ := time.Parse("2006-01-02", enddate)
 
-// 	durationTime := int(endTime.Sub(startTime).Hours())
-// 	durationDays := durationTime / 24
-// 	durationWeeks := durationDays / 7
-// 	durationMonths := durationWeeks / 4
-// 	durationYears := durationMonths / 12
+	durTime := int(end.Sub(start).Hours())
+	durDays := durTime / 24
+	durWeeks := durDays / 7
+	durMonths := durWeeks / 4
+	durYears := durMonths / 12
 
-// 	var duration string
+	var duration string
 
-// 	if durationYears > 0 {
-// 		duration = strconv.Itoa(durationYears) + "Tahun"
-// 	} else {
-// 		if durationMonths > 0 {
-// 			duration = strconv.Itoa(durationMonths) + " Bulan"
-// 		} else {
-// 			if durationWeeks > 0 {
-// 				duration = strconv.Itoa(durationWeeks) + "Minggu"
-// 			} else {
-// 				if durationDays > 0 {
-// 					duration = strconv.Itoa(durationDays) + " Hari"
-// 				}
-// 			}
-// 		}
-// 	}
-
-// 	return duration
-// }
-
-func Format_Durasi(Duration time.Duration) string {
-
-	Days := int(Duration.Hours() / 24)
-	Weeks := Days / 7
-	Months := Days / 30
-	Years := Months / 12
-
-	if Years > 1 {
-		return strconv.Itoa(Years) + " years"
-	} else if Years > 0 {
-		return strconv.Itoa(Years) + " year"
+	if durYears > 1 {
+		duration = strconv.Itoa(durYears) + " years"
+	} else if durYears > 0 {
+		duration = strconv.Itoa(durYears) + " year"
 	} else {
-		if Months > 1 {
-			return strconv.Itoa(Months) + " months"
-		} else if Months > 0 {
-			return strconv.Itoa(Months) + " month"
+		if durMonths > 1 {
+			duration = strconv.Itoa(durMonths) + " months"
+		} else if durMonths > 0 {
+			duration = strconv.Itoa(durMonths) + " month"
 		} else {
-			if Weeks > 1 {
-				return strconv.Itoa(Weeks) + " weeks"
-			} else if Weeks > 0 {
-				return strconv.Itoa(Weeks) + " week"
+			if durWeeks > 1 {
+				duration = strconv.Itoa(durWeeks) + " weeks"
+			} else if durWeeks > 0 {
+				duration = strconv.Itoa(durWeeks) + " week"
 			} else {
-				if Days > 1 {
-					return strconv.Itoa(Days) + " days"
+				if durDays > 1 {
+					duration = strconv.Itoa(durDays) + " days"
 				} else {
-					return strconv.Itoa(Days) + " day"
+					duration = strconv.Itoa(durDays) + " day"
 				}
 			}
 		}
 	}
 
+	return duration
 }

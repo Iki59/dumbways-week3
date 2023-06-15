@@ -16,7 +16,7 @@
       <nav class="navbar navbar-expand-lg bg-body-tertiary px-sm-5">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <img src="public/image/logo.png" />
+                <img src="/public/image/logo.png" />
             </a>
             <button 
             class="navbar-toggler" 
@@ -47,7 +47,7 @@
     </nav>
 
     <div class="project-detail py-5">
-      <h1 class="fw-bold mb-sm-5 mt-sm-4">{{.Project.ProjectName}}</h1>
+      <h1 class="fw-bold mb-sm-5 mt-sm-4">{{.Project_Detail.ProjectName}}</h1>
       <div class="container d-sm-flex justify-content-center align-items-center gap-4 mt-3">
             <div class="content-left">
               <img src="/public/image/apps.jpg" alt="apps" class="img-fluid" />
@@ -58,13 +58,13 @@
                     <div class="date d-flex gap-2 mb-2">
                       <i class="fa-regular fa-calendar-days fs-4" style="color: #000000"></i>
                       <h3 class="fs-5 mt-1">
-                        {{.Project.StartDate}} | {{.Project.EndDate}}
+                        {{.Project_Detail.Format_Start_Date}} | {{.Project_Detail.Format_End_Date}}
                       </h3>
                     </div>
                     <div class="duration d-flex gap-2 mb-4">
                       <i class="fa-regular fa-clock fs-4" style="color: #000000"></i>
                       <h3 class="fs-5">
-                        {{.Project.Duration}}
+                        {{.Project_Detail.Duration}}
                       </h3>
                     </div>
                   </div>
@@ -72,29 +72,37 @@
                     <h2>Technologies</h2>
                     <div class="tech-top d-flex gap-5 mb-2">
                       <div class="java-tech d-flex gap-2">
+                        {{if .Project_Detail.Java}}
                         <i class="fa-brands fa-java fs-4"></i>
                         <h3 class="fs-5">Java</h3>
+                        {{end}}
                       </div>
                       <div class="python-tech d-flex gap-2">
+                        {{if .Project_Detail.Python}}
                         <i class="fa-brands fa-python fs-4"></i>
                         <h3 class="fs-5">Python</h3>
+                        {{end}}
                       </div>
                     </div>
                     <div class="tech-bottom d-flex gap-3">
                       <div class="js-tech d-flex gap-2">
+                        {{if .Project_Detail.Javascript}}
                         <i class="fa-brands fa-square-js fs-4"></i>
                         <h3 class="fs-5">Javascript</h3>
+                        {{end}}
                       </div>
                       <div class="php-tech d-flex gap-2">
+                        {{if .Project_Detail.PHP}}
                         <i class="fa-brands fa-php fs-4"></i>
                         <h3 class="fs-5">PHP</h3>
+                        {{end}}
                       </div>
                     </div>
                   </div>
                 </div>
           </div>
         </div>
-                <p class="px-sm-4 py-sm-1 mx-4" style="text-justify: auto;"> {{.Project.Description}} </p>
+                <p class="px-sm-4 py-sm-1 mx-4" style="text-justify: auto;"> {{.Project_Detail.Description}} </p>
     
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
               integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" 
