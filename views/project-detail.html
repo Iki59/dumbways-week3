@@ -50,7 +50,7 @@
       <h1 class="fw-bold mb-sm-5 mt-sm-4">{{.Project_Detail.ProjectName}}</h1>
       <div class="container d-sm-flex justify-content-center align-items-center gap-4 mt-3">
             <div class="content-left">
-              <img src="/public/image/apps.jpg" alt="apps" class="img-fluid" />
+              <img src="/uploads/{{.Project_Detail.Image}}" alt="apps" class="img-fluid" />
             </div>
                 <div class="content-right mt-3 mx-2">
                   <div class="time-project">
@@ -98,6 +98,9 @@
                         {{end}}
                       </div>
                     </div>
+                  </div>
+                  <div class="author mt-3">
+                    <p>Project By {{.Project_Detail.Author}} </p>
                   </div>
                 </div>
           </div>

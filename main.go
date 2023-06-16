@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"dumbwaysgolang/connection"
+	"dumbwaysgolang/middleware"
 	"fmt"
 	"html/template"
 	"log"
@@ -109,6 +110,7 @@ func main() {
 	// helloWorld = function that will run if the routes are opened
 
 	e.Static("/public", "public")
+	e.Static("/uploads", "uploads")
 
 	// to use sessions using echo
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte("session"))))
@@ -129,7 +131,7 @@ func main() {
 	e.POST("/register", register)
 	e.POST("/logout", logout)
 
-	e.POST("/", addProject)
+	e.POST("/", middleware.UploadFile(addProject))
 	e.POST("/project-delete/:id", deleteProject)
 	e.POST("/update-project/:id", updateProject)
 
@@ -185,20 +187,22 @@ func home(c echo.Context) error {
 }
 
 func project(c echo.Context) error {
-	data, _ := connection.Conn.Query(context.Background(), "SELECT id, name, description, java, python, javascript, php, image, start_date, end_date, duration FROM tbl_project")
+	data, _ := connection.Conn.Query(context.Background(), "SELECT tbl_project.id, tbl_project.name, description, java, python, javascript, php, image, start_date, end_date, duration, tbl_user.name AS author FROM tbl_project JOIN tbl_user ON tbl_project.author_id = tbl_user.id ORDER BY tbl_project.id DESC")
 
 	var result []Project
 	for data.Next() {
 		var each = Project{}
 
-		err := data.Scan(&each.ID, &each.ProjectName, &each.Description, &each.Java, &each.Python, &each.Javascript, &each.PHP, &each.Image, &each.StartDate, &each.EndDate, &each.Duration)
+		err := data.Scan(&each.ID, &each.ProjectName, &each.Description, &each.Java, &each.Python, &each.Javascript, &each.PHP, &each.Image, &each.StartDate, &each.EndDate, &each.Duration, &each.Author)
 		if err != nil {
 			fmt.Println(err.Error())
 			return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
 		}
 
 		each.FormatDate = each.PostDate.Format("5 September 1999")
-		each.Author = "Muhammad Rizki B"
+		// each.Author = "Muhammad Rizki B"
+		each.Format_Start_Date = each.StartDate.Format("2 January 2006")
+		each.Format_End_Date = each.EndDate.Format("2 January 2006")
 		// each.Duration = each.EndDate.Sub(each.StartDate)
 		// each.Duration_Format = Durasi(each.Duration)
 
@@ -272,15 +276,15 @@ func projectDetail(c echo.Context) error {
 
 	// kenapa pake query row karena yang dicari hanya satu baris data pada table
 	// pakai $1 karena dia mendapatkan value dari id, maksudnya value pertamanya nanti diisi sesuai dengan id, $1 akan diisi sesuai dengan id kemudian bisa diisi value kedua dengan $2 diikuti value setelahnya.
-	err := connection.Conn.QueryRow(context.Background(), "SELECT id, name, description, java, python, javascript, php, image, start_date, end_date, duration FROM tbl_project WHERE id=$1", id).Scan(
-		&ProjectDetail.ID, &ProjectDetail.ProjectName, &ProjectDetail.Description, &ProjectDetail.Java, &ProjectDetail.Python, &ProjectDetail.Javascript, &ProjectDetail.PHP, &ProjectDetail.Image, &ProjectDetail.StartDate, &ProjectDetail.EndDate, &ProjectDetail.Duration)
+	err := connection.Conn.QueryRow(context.Background(), "SELECT tbl_project.id, tbl_project.name, description, java, python, javascript, php, image, start_date, end_date, duration, tbl_user.name AS author FROM tbl_project JOIN tbl_user ON tbl_project.author_id = tbl_user.id WHERE tbl_project.id=$1", id).Scan(
+		&ProjectDetail.ID, &ProjectDetail.ProjectName, &ProjectDetail.Description, &ProjectDetail.Java, &ProjectDetail.Python, &ProjectDetail.Javascript, &ProjectDetail.PHP, &ProjectDetail.Image, &ProjectDetail.StartDate, &ProjectDetail.EndDate, &ProjectDetail.Duration, &ProjectDetail.Author)
 	// guna dari tanda & yaitu sebagai pointer, agar si ProjectDetail tau tipe datanya apa sesuai dengan struct yang dipasangkan
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"mesage": err.Error()})
 	}
 
-	ProjectDetail.Author = "Muhammad Rizki B"
+	// ProjectDetail.Author = "Muhammad Rizki B"
 	ProjectDetail.FormatDate = ProjectDetail.PostDate.Format("2 January 2006")
 	// ProjectDetail.Duration_Format = Durasi(ProjectDetail.Duration)
 	ProjectDetail.Format_Start_Date = ProjectDetail.StartDate.Format("2 January 2006")
@@ -378,7 +382,11 @@ func addProject(c echo.Context) error {
 	// checktwo := c.FormValue("inputPython")
 	// checkthree := c.FormValue("inputJavascript")
 	// checkfour := c.FormValue("inputPhp")
-	// author:= "Muhammad Rizki B"
+
+	sess, _ := session.Get("session", c)
+	author := sess.Values["id"].(int)
+
+	image := c.Get("dataFile").(string)
 
 	var checkone bool
 	if c.FormValue("inputJava") == "inputJava" {
@@ -400,7 +408,7 @@ func addProject(c echo.Context) error {
 		checkfour = true
 	}
 
-	_, err := connection.Conn.Exec(context.Background(), "INSERT INTO tbl_project (name, description, java, python, javascript, php, image, start_date, end_date, duration) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", projectname, description, checkone, checktwo, checkthree, checkfour, "apps-img-jpg", startdate, enddate, duration)
+	_, err := connection.Conn.Exec(context.Background(), "INSERT INTO tbl_project (name, description, java, python, javascript, php, image, start_date, end_date, duration, author_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", projectname, description, checkone, checktwo, checkthree, checkfour, image, startdate, enddate, duration, author)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
