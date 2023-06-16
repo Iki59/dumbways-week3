@@ -5,11 +5,15 @@ import (
 	"dumbwaysgolang/connection"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // nama dari structnya adalah Project
@@ -37,6 +41,20 @@ type Project struct {
 	Format_Start_Date string
 	Format_End_Date   string
 }
+
+type User struct {
+	ID       int
+	Name     string
+	Email    string
+	Password string
+}
+
+type SessionData struct {
+	IsLogin bool
+	Name    string
+}
+
+var userData = SessionData{}
 
 // cara ngisi valuenya
 // data-data yang ditampung, yang kemudian data yang diisi harus sesuai dengan tipe data yang telah dibangun pada struct
@@ -92,6 +110,9 @@ func main() {
 
 	e.Static("/public", "public")
 
+	// to use sessions using echo
+	e.Use(session.Middleware(sessions.NewCookieStore([]byte("session"))))
+
 	// Routing
 	e.GET("/hello", helloWorld)
 	e.GET("/", home)
@@ -101,6 +122,12 @@ func main() {
 	e.GET("project-detail/:id", projectDetail)
 	e.GET("/form-project", formAddProject)
 	e.GET("update-project/:id", updatingProject)
+	// Register and Login
+	e.GET("/form-register", userRegister)
+	e.GET("/form-login", userLogin)
+	e.POST("/login", login)
+	e.POST("/register", register)
+	e.POST("/logout", logout)
 
 	e.POST("/", addProject)
 	e.POST("/project-delete/:id", deleteProject)
@@ -125,13 +152,28 @@ func helloWorld(c echo.Context) error {
 }
 
 func home(c echo.Context) error {
+	sess, _ := session.Get("session", c)
+
+	data := map[string]interface{}{
+		"FlashStatus":  sess.Values["status"],
+		"FlashMessage": sess.Values["message"],
+	}
+
+	delete(sess.Values, "message")
+	delete(sess.Values, "status")
+	sess.Save(c.Request(), c.Response())
+
+	// diatas supaya pesan dsb yang muncul itu cuma sekali
+
+	// dipake datas karena nanti ada lebih dari satu data
+
 	var tmpl, err = template.ParseFiles("views/index.html")
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	} // method ini buat ngambil value err, jadi ketika error akan dikembalika JSON dengan pesan error diatas, jadi kalau errornya gk kosong maka return itu dijalanin
 
-	return tmpl.Execute(c.Response(), nil)
+	return tmpl.Execute(c.Response(), data)
 
 	// tmpl execute ini mengeksekusi dari tmpl diatas, dan ada dua parameter yang harus dikirimkan di dalamnya
 
@@ -163,9 +205,19 @@ func project(c echo.Context) error {
 		result = append(result, each)
 	}
 
+	sess, _ := session.Get("session", c)
+
+	if sess.Values["isLogin"] != true {
+		userData.IsLogin = false
+	} else {
+		userData.IsLogin = sess.Values["isLogin"].(bool)
+		userData.Name = sess.Values["name"].(string)
+	}
+
 	projects := map[string]interface{}{
 		// "Projects": dataProject,
-		"Projects": result,
+		"Projects":    result,
+		"DataSession": userData,
 	}
 	var tmpl, err = template.ParseFiles("views/index.html")
 
@@ -501,4 +553,110 @@ func Durasi(startdate string, enddate string) string {
 	}
 
 	return duration
+}
+
+func userRegister(c echo.Context) error {
+	var tmpl, err = template.ParseFiles("views/register.html")
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return tmpl.Execute(c.Response(), nil)
+}
+
+func register(c echo.Context) error {
+	// too make sure request body is form data format not json, xml, etc.
+	err := c.Request().ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+	name := c.FormValue("input_name")
+	email := c.FormValue("input_email")
+	password := c.FormValue("input_pass")
+
+	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(password), 10)
+	// agar data yang dikirimkan dimasukkan di db
+
+	_, err = connection.Conn.Exec(context.Background(), "INSERT INTO tbl_user(name, email, password) VALUES ($1, $2, $3)", name, email, passwordHash)
+
+	if err != nil {
+		redirectWithMessage(c, "Register failed, try agaim buddy.", false, "/form-register")
+	}
+	return redirectWithMessage(c, "Register success!", true, "/form-login")
+}
+
+func userLogin(c echo.Context) error {
+	sess, _ := session.Get("session", c)
+
+	flash := map[string]interface{}{
+		"FlashStatus":  sess.Values["status"],
+		"FlashMessage": sess.Values["message"],
+	}
+
+	delete(sess.Values, "message")
+	delete(sess.Values, "status")
+	sess.Save(c.Request(), c.Response())
+
+	var tmpl, err = template.ParseFiles("views/login.html")
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return tmpl.Execute(c.Response(), flash)
+}
+
+func login(c echo.Context) error {
+	err := c.Request().ParseForm()
+	// request bertugas menerima inputan data yang dikirimkan oleh html, atau perintah apapun
+	// pake ParseForm karena yang dijalankan login menerima inputan form yang didalamnya ada yang kita uraikan dulu
+	if err != nil {
+		log.Fatal(err)
+	}
+	email := c.FormValue("input_email")
+	password := c.FormValue("input_pass")
+
+	// sistem login
+	user := User{}
+	err = connection.Conn.QueryRow(context.Background(), "SELECT * FROM tbl_user WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	if err != nil {
+		return redirectWithMessage(c, "Email Incorrect!", false, "/form-login")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		return redirectWithMessage(c, "Password Incorrect", false, "/form-login")
+	}
+
+	sess, _ := session.Get("session", c)
+	sess.Options.MaxAge = 10800 //3 jam, jadi login kita hanya berlaku selama 3 jam, setelah 3 jam kita harus login lagi
+	sess.Values["message"] = "Login success!"
+	sess.Values["status"] = true
+	sess.Values["name"] = user.Name
+	sess.Values["email"] = user.Email
+	sess.Values["id"] = user.ID
+	sess.Values["isLogin"] = true
+	sess.Save(c.Request(), c.Response())
+	// sess.Save dia menerima dua parameter
+	// session ini akan kita dapatkan dari satu package dari si echo juga, jadi harus instal dulu
+
+	return c.Redirect(http.StatusMovedPermanently, "/")
+}
+
+func logout(c echo.Context) error {
+	sess, _ := session.Get("session", c)
+	sess.Options.MaxAge = -1 //kenapa pake -1 karena nantinya dari akun yg sudah kita simpan di session, umurnya kita kasih -1, kalo 0 sessionnya langsung mati
+	sess.Save(c.Request(), c.Response())
+
+	return c.Redirect(http.StatusMovedPermanently, "/")
+}
+
+func redirectWithMessage(c echo.Context, message string, status bool, path string) error {
+	// kenapa kita pakai message status dan path, karena rwm di func diatas ada konteksnya, messagenya, statusnya dan pathnya mau kemana
+	sess, _ := session.Get("session", c)
+	sess.Values["message"] = message
+	sess.Values["status"] = status
+	sess.Save(c.Request(), c.Response())
+	return c.Redirect(http.StatusMovedPermanently, path)
 }

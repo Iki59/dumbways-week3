@@ -41,10 +41,33 @@
                             >Testimonials</a>
                         </li>
                     </ul>
-                        <a href="contact" class="btn bg-blue text-white px-3 py-1 rounded-4">Contact Me</a>
+                    <div class="nav-right d-flex gap-1">
+                        {{if .DataSession.IsLogin}}
+                        <a class="text-decoration-none fs-6 mt-1" href="#">Hello, {{.DataSession.Name}} </a>
+                        <form id="myform" action="/logout" method="POST"></form>
+                        <button class="border border-0 text-decoration-none bg-transparent fw-normal fs-6 me-2" onclick="document.getElementById('myform').submit()" class="btn-auth">Logout</button>
+                        {{else}}
+                        <a href="/form-register" class="btn-auth fs-6 mt-1 text-decoration-none me-2">Register</a>
+                        <a href="/form-login" class="btn-auth fs-6 text-decoration-none me-3 mt-1">Login</a>
+                        {{end}}
+                            <a href="contact" class="btn bg-blue text-white px-3 py-1 rounded-4">Contact Me</a>
+                    </div>
                 </div>
             </div>
         </nav>
+
+
+        {{if .FlashMessage}} {{if .FlashStatus}}
+            <div class="alert alert-success alert-dismissable fade show" role="alert">
+                <strong>{{.FlashMessage}}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {{else}}
+            <div class="alert alert-danger alert-dismissable fade show" role="alert">
+                <strong>{{.FlashMessage}}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {{end}} {{end}}
 
         <div class="container my-5">
             <div class="card mt-3 mb-2 shadow-lg p-3 rounded-4">
@@ -105,6 +128,7 @@
         </div>
 
         <div class="project" style="background-color: #fff; padding-top: 60px;">
+            {{if .DataSession.IsLogin}}
             <h1 class="text-center fw-bold">MY PROJECT</h1>
             <div class="text-end mt-4" style="margin-right: 145px;">
                 <a
@@ -113,6 +137,7 @@
                   >Add Project</a
                 >
               </div>
+              {{end}}
       
               <div class="container-project">
                   <div class="section-project" id="projects">

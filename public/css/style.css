@@ -19,6 +19,18 @@ nav .container-fluid a {
     color: black;
 }
 
+.container-fluid .navbar-collapse .nav-right a {
+    font-size: 15px;
+    font-weight: 300;
+    color: black;
+}
+
+.container-fluid .navbar-collapse .nav-right button {
+    font-size: 15px;
+    font-weight: 600;
+    color: black;
+}
+
 .bg-blue {
     background-color: #1E3050 !important;
 }
